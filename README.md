@@ -25,29 +25,12 @@ The application flow is:
 5. The function returns a JSON response with the detected labels and confidence scores
 
 **Test Input Example:**
+
 ```json
 {
   "bucket": "your-bucket-name",
   "photo": "dog.jpg"
 }
-
-### 🔹 I – Implementation
-
-- **Language:** Python 3.12  
-- **AWS Services Used:**
-  - 🪣 Amazon S3 – to store uploaded images  
-  - ⚙️ AWS Lambda – to run the detection logic  
-  - 👁️ Amazon Rekognition – to identify objects  
-  - 🔐 IAM – to grant permissions
-
-**Key IAM Permissions:**
-
-- `AmazonS3ReadOnlyAccess`  
-- `AmazonRekognitionFullAccess`
-
-**Lambda Function Core Logic:**
-
-```python
 import boto3
 import json
 
@@ -79,3 +62,7 @@ def lambda_handler(event, context):
         'statusCode': 200,
         'body': json.dumps(labels)
     }
+[
+  { "Name": "Dog", "Confidence": 98.6 },
+  { "Name": "Pet", "Confidence": 93.2 }
+]
