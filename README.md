@@ -32,20 +32,22 @@ The application flow is:
 }
 
 ### 🔹 I – Implementation
-Language: Python 3.12
 
-AWS Services Used:
+- **Language:** Python 3.12  
+- **AWS Services Used:**
+  - 🪣 Amazon S3 – to store uploaded images  
+  - ⚙️ AWS Lambda – to run the detection logic  
+  - 👁️ Amazon Rekognition – to identify objects  
+  - 🔐 IAM – to grant permissions
 
-🪣 Amazon S3 – to store uploaded images
-⚙️ AWS Lambda – to run the detection logic
-👁️ Amazon Rekognition – to identify objects
-🔐 IAM – to grant permissions
+**Key IAM Permissions:**
 
-Key IAM Permissions:
+- `AmazonS3ReadOnlyAccess`  
+- `AmazonRekognitionFullAccess`
 
-AmazonS3ReadOnlyAccess
-AmazonRekognitionFullAccess
-Lambda Function Core Logic:
+**Lambda Function Core Logic:**
+
+```python
 import boto3
 import json
 
@@ -77,34 +79,3 @@ def lambda_handler(event, context):
         'statusCode': 200,
         'body': json.dumps(labels)
     }
-
-
-### 🔹 L – Lessons Learned
-✅ Rekognition is fast and accurate even with basic inputs
-
-✅ File naming matters — avoid commas and spaces in S3 object names
-
-✅ IAM permissions and S3 bucket policies were critical to success
-
-✅ CloudWatch Logs helped troubleshoot Lambda test failures
-
-
-
-### 🔹 D – Deliverables
-✅ Working Lambda function (Python)
-
-✅ Fully functional S3 bucket integration
-
-✅ Rekognition tested with multiple image types
-
-🕒 Time to build: ~1.5 hours
-
-🔮 Future goals: Add API Gateway or basic front-end UI
-
-[
-  { "Name": "Dog", "Confidence": 98.6 },
-  { "Name": "Pet", "Confidence": 93.2 }
-]
-
-
-
