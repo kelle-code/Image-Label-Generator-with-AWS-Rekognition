@@ -31,3 +31,95 @@ The application flow is:
   "bucket": "your-bucket-name",
   "photo": "dog.jpg"
 }
+```
+
+---
+
+### 🔹 I – Implementation
+
+- **Language:** Python 3.12  
+- **AWS Services Used:**
+  - 🪣 Amazon S3 – to store uploaded images  
+  - ⚙️ AWS Lambda – to run the detection logic  
+  - 👁️ Amazon Rekognition – to identify objects  
+  - 🔐 IAM – to grant permissions
+
+**Key IAM Permissions:**
+
+- `AmazonS3ReadOnlyAccess`  
+- `AmazonRekognitionFullAccess`
+
+**Lambda Function Core Logic:**
+
+```python
+import boto3
+import json
+
+def lambda_handler(event, context):
+    bucket = event['bucket']
+    photo = event['photo']
+
+    client = boto3.client('rekognition')
+
+    response = client.detect_labels(
+        Image={
+            'S3Object': {
+                'Bucket': bucket,
+                'Name': photo
+            }
+        },
+        MaxLabels=10,
+        MinConfidence=75
+    )
+
+    labels = []
+    for label in response['Labels']:
+        labels.append({
+            'Name': label['Name'],
+            'Confidence': round(label['Confidence'], 2)
+        })
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps(labels)
+    }
+```
+
+---
+
+### 🔹 L – Lessons Learned
+
+- ✅ Rekognition is fast and accurate even with basic inputs  
+- ✅ File naming matters — avoid commas and spaces in S3 object names  
+- ✅ IAM permissions and S3 bucket policies were critical to success  
+- ✅ CloudWatch Logs helped troubleshoot Lambda test failures  
+
+---
+
+### 🔹 D – Deliverables
+
+- ✅ Working Lambda function (Python)  
+- ✅ Fully functional S3 bucket integration  
+- ✅ Rekognition tested with multiple image types  
+- 🕒 Time to build: ~1.5 hours  
+- 🔮 Future goals: Add API Gateway or basic front-end UI  
+
+---
+
+## 📸 Sample Output
+
+```json
+[
+  { "Name": "Dog", "Confidence": 98.6 },
+  { "Name": "Pet", "Confidence": 93.2 }
+]
+```
+
+---
+
+## 📬 Connect With Me
+
+**Mo Hines**  
+AWS Certified Cloud Practitioner | CompTIA A+ | Network+ | Security+  
+[LinkedIn](https://www.linkedin.com/in/your-link-here)
+
