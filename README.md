@@ -9,66 +9,102 @@ This project uses **Amazon S3**, **Lambda**, and **Rekognition** to detect label
 ## 🧠 BUILD Summary
 
 ### 🔹 B – Background
+
 This project was designed as a practical way to explore AWS’s machine learning capabilities using Rekognition. The goal was to analyze images using a fully serverless setup and return meaningful labels and confidence scores — all without needing a dedicated server or frontend.
 
 ---
 
 ### 🔹 U – Understanding
+
 The application flow is:
-1. An image is uploaded to an S3 bucket
-2. A Lambda function is triggered manually (or later by API)
-3. The image is passed to Amazon Rekognition
-4. Rekognition returns label data (e.g., “Dog”, “Tree”, “Person”)
+
+1. An image is uploaded to an S3 bucket  
+2. A Lambda function is triggered manually (or later by API)  
+3. The image is passed to Amazon Rekognition  
+4. Rekognition returns label data (e.g., “Dog”, “Tree”, “Person”)  
 5. The function returns a JSON response with the detected labels and confidence scores
 
-Input Example:
+**Test Input Example:**
 ```json
 {
   "bucket": "your-bucket-name",
   "photo": "dog.jpg"
 }
 
----
-
 ### 🔹 I – Implementation
 Language: Python 3.12
-Services Used:
-Amazon S3 for image storage
-AWS Lambda for compute logic
-Amazon Rekognition for image analysis
-IAM for permission control
 
-response = client.detect_labels(
-    Image={'S3Object': {'Bucket': bucket, 'Name': photo}},
-    MaxLabels=10,
-    MinConfidence=75
-)
-IAM Role permissions:
+AWS Services Used:
+
+🪣 Amazon S3 – to store uploaded images
+⚙️ AWS Lambda – to run the detection logic
+👁️ Amazon Rekognition – to identify objects
+🔐 IAM – to grant permissions
+
+Key IAM Permissions:
+
 AmazonS3ReadOnlyAccess
 AmazonRekognitionFullAccess
+Lambda Function Core Logic:
+import boto3
+import json
 
----
+def lambda_handler(event, context):
+    bucket = event['bucket']
+    photo = event['photo']
+
+    client = boto3.client('rekognition')
+
+    response = client.detect_labels(
+        Image={
+            'S3Object': {
+                'Bucket': bucket,
+                'Name': photo
+            }
+        },
+        MaxLabels=10,
+        MinConfidence=75
+    )
+
+    labels = []
+    for label in response['Labels']:
+        labels.append({
+            'Name': label['Name'],
+            'Confidence': round(label['Confidence'], 2)
+        })
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps(labels)
+    }
+
 
 ### 🔹 L – Lessons Learned
-Rekognition is incredibly powerful even with minimal setup.
+✅ Rekognition is fast and accurate even with basic inputs
 
-Lambda permissions can be tricky — ensuring the right IAM roles and S3 bucket policy was key.
+✅ File naming matters — avoid commas and spaces in S3 object names
 
-File naming in S3 matters (no commas or spaces!).
+✅ IAM permissions and S3 bucket policies were critical to success
 
-CloudWatch Logs helped debug and verify behavior.
+✅ CloudWatch Logs helped troubleshoot Lambda test failures
 
----
+
 
 ### 🔹 D – Deliverables
-✅ Working Lambda function
-✅ S3 integration
-✅ Rekognition output tested
+✅ Working Lambda function (Python)
+
+✅ Fully functional S3 bucket integration
+
+✅ Rekognition tested with multiple image types
+
 🕒 Time to build: ~1.5 hours
-🚀 Next steps: Add API Gateway or web frontend
 
+🔮 Future goals: Add API Gateway or basic front-end UI
 
-
+[
+  { "Name": "Dog", "Confidence": 98.6 },
+  { "Name": "Pet", "Confidence": 93.2 }
+]
 
 
 
