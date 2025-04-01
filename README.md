@@ -31,38 +31,3 @@ The application flow is:
   "bucket": "your-bucket-name",
   "photo": "dog.jpg"
 }
-import boto3
-import json
-
-def lambda_handler(event, context):
-    bucket = event['bucket']
-    photo = event['photo']
-
-    client = boto3.client('rekognition')
-
-    response = client.detect_labels(
-        Image={
-            'S3Object': {
-                'Bucket': bucket,
-                'Name': photo
-            }
-        },
-        MaxLabels=10,
-        MinConfidence=75
-    )
-
-    labels = []
-    for label in response['Labels']:
-        labels.append({
-            'Name': label['Name'],
-            'Confidence': round(label['Confidence'], 2)
-        })
-
-    return {
-        'statusCode': 200,
-        'body': json.dumps(labels)
-    }
-[
-  { "Name": "Dog", "Confidence": 98.6 },
-  { "Name": "Pet", "Confidence": 93.2 }
-]
